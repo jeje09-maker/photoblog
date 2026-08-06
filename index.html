@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>photoBlog — AI 멀티모달 블로깅 자동화 어시스턴트</title>
+
+  <!-- Google Fonts: Outfit & Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap"
+    rel="stylesheet">
+
+  <!-- Pretendard (Korean Web Font) -->
+  <link rel="stylesheet" as="style" crossorigin
+    href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css">
+
+  <!-- Style Sheet -->
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+  <!-- ── CURSOR GLOW (마우스 광원 효과) ────────────────────── -->
+  <div class="cursor-glow" id="cursorGlow"></div>
+
+  <!-- ── NAVIGATION HEADER ───────────────────────────────── -->
+  <nav class="navbar">
+    <div class="nav-inner">
+      <div class="nav-brand">
+        <span class="logo-icon">📷</span>
+        <span class="logo-text">photo<span>Blog</span></span>
+      </div>
+      <div class="nav-menu">
+        <button class="nav-btn" id="btnShowCompare">도구 비교</button>
+        <button class="nav-btn" id="btnShowFaq">자주 묻는 질문</button>
+        <button class="nav-btn btn-primary" id="btnOpenSettings">
+          <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="3"></circle>
+            <path
+              d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z">
+            </path>
+          </svg>
+          Gemini 설정
+        </button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ── MAIN CONTAINER ─────────────────────────────────── -->
+  <main class="main-container">
+    <div class="grid-layout">
+
+      <!-- ── LEFT PANEL: INPUT & CONFIGURATION ──────────────── -->
+      <section class="panel panel-left card-glow">
+        <div class="panel-header">
+          <h2 class="panel-title">1. 사진입력</h2>
+          <p class="panel-subtitle">블로그 포스팅의 재료가 될 사진과 기본 정보를 넣어주세요.</p>
+        </div>
+
+        <!-- Photo Upload Zone -->
+        <div class="form-group">
+          <label class="form-label">사진 업로드 (최대 10장)</label>
+          <div class="upload-zone" id="uploadZone">
+            <input type="file" id="fileInput" multiple accept="image/*" class="file-input">
+            <svg class="upload-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+              <circle cx="8.5" cy="8.5" r="1.5"></circle>
+              <polyline points="21 15 16 10 5 21"></polyline>
+            </svg>
+            <p class="upload-text">사진을 드래그 앤 드롭하거나 클릭하여 선택하세요</p>
+            <p class="upload-tip">포스팅용 사진을 여러 장 선택할 수 있습니다.</p>
+          </div>
+
+          <!-- Image Previews Container -->
+          <div class="preview-container hidden" id="previewContainer">
+            <div class="preview-grid" id="previewGrid"></div>
+            <button class="btn-text" id="btnClearPhotos">전체 삭제</button>
+          </div>
+        </div>
+
+        <!-- Meta Information Inputs -->
+        <div class="form-group-row">
+          <div class="form-group">
+            <label for="inputSubject" class="form-label">포스팅 핵심 주제 / 장소 / 대상</label>
+            <input type="text" id="inputSubject" class="form-control"
+              placeholder="예: 이슈분석, 경제전망, 맛집탐방, 숨겨진 여행지, 제품리뷰, AI 기술, 인공지능뉴스등 ">
+          </div>
+          <div class="form-group">
+            <label for="inputDate" class="form-label">방문/경험 날짜 (선택: 무관 시 생략)</label>
+            <input type="date" id="inputDate" class="form-control">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="inputDesc" class="form-label" style="color: #6366f1; font-weight: 600;">💡 직접 경험한 내용 / 휴먼 페르소나
+            (자신의 경험, 의견, 느낌 등을 적어 글에 생동감을 불어넣는 공간)</label>
+          <textarea id="inputDesc" class="form-control textarea-desc" style="height: 80px;"
+            placeholder="예: 첫 입에 느껴진 풍부한 육즙이 정말 인상적이었음, 주말 낮에 가니 햇살이 가득해서 힐링되었음, 개인적으로 재방문 의사 200% 등&#10;★ 자신이 직접 겪은 생생한 경험과 솔직한 느낌, 개인 의견을 적어주시면 기계적인 AI 톤이 사라지고 진짜 사람이 쓴 것처럼 살아있는 생동감 넘치는 글로 완성됩니다."></textarea>
+        </div>
+
+        <!-- Reference Article / Document Upload -->
+        <div class="form-group"
+          style="background: rgba(99, 102, 241, 0.05); padding: 12px; border-radius: 10px; border: 1px dashed rgba(99, 102, 241, 0.3);">
+          <div class="form-label-with-btn" style="margin-bottom: 6px;">
+            <label for="inputArticle" class="form-label" style="margin-bottom: 0;">📑 참고 기사 붙여넣기 / 참조 문서 업로드</label>
+            <label class="btn-micro"
+              style="cursor: pointer; background: #6366f1; color: #fff; border: none; padding: 4px 8px; border-radius: 6px;">
+              📁 문서 첨부 (.txt, .md, .csv)
+              <input type="file" id="fileInputDoc" accept=".txt,.md,.csv,.json,.html" style="display:none;">
+            </label>
+          </div>
+          <textarea id="inputArticle" class="form-control textarea-desc" style="height: 80px; font-size: 0.85rem;"
+            placeholder="신문 기사, 보도자료, 상품 설명서 등 참고할 원문 텍스트를 복사해서 붙여넣거나 문서를 첨부하세요. AI가 팩트를 완벽히 참조하여 블로그 글로 재가공합니다."></textarea>
+        </div>
+
+      </section>
+
+      <!-- ── RIGHT PANEL: GENERATOR & VIEWER ───────────────── -->
+      <section class="panel panel-right card-glow">
+        <div class="panel-header">
+          <h2 class="panel-title">2. 블로그 생성 엔진</h2>
+          <p class="panel-subtitle">최적화 모드를 선택하고 포스팅을 추출해보세요.</p>
+        </div>
+
+        <!-- 1. 블로그 카테고리 (11개 전체 직관적 선택) -->
+        <div class="sub-mode-container" style="margin-bottom: 15px;">
+          <label class="form-label" style="margin-bottom: 10px; display: block; font-weight: 600; color: #f1f5f9;">🏷️
+            1단계: 블로그 카테고리 선택 (분야별 특성 및 맞춤 구조 반영)</label>
+          <div class="category-tabs" id="mainCategoryTabs">
+            <button class="category-tab active" data-category="restaurant">🍽️ 맛집/푸드</button>
+            <button class="category-tab" data-category="cafe">☕ 카페/디저트</button>
+            <button class="category-tab" data-category="travel">✈️ 여행/관광</button>
+            <button class="category-tab" data-category="tech">💻 IT/테크/가전</button>
+            <button class="category-tab" data-category="fashion">💄 패션/뷰티</button>
+            <button class="category-tab" data-category="living">🏡 리빙/인테리어</button>
+            <button class="category-tab" data-category="parenting">👶 육아/교육</button>
+            <button class="category-tab" data-category="review">📚 도서/영화/리뷰</button>
+            <button class="category-tab" data-category="health">🏋️ 건강/운동/헬스</button>
+            <button class="category-tab" data-category="finance">💰 경제/재테크/비즈</button>
+            <button class="category-tab" data-category="news">📰 시사/경제/정치</button>
+          </div>
+        </div>
+
+        <!-- 2. 전 카테고리 공통: 톤/매너 (블로그 말투) 따로 독립 -->
+        <div class="sub-mode-container"
+          style="margin-bottom: 15px; background: rgba(30, 41, 59, 0.6); padding: 14px; border-radius: 12px; border: 1px solid rgba(255, 255, 255, 0.08);">
+          <div class="form-group" style="margin-bottom: 12px;">
+            <label for="selectBlogTone" class="form-label" style="color: #38bdf8; font-weight: 600;">💬 2단계: 블로그 말투 Tone
+              & Manner (전 카테고리 100% 공통 반영)</label>
+            <select id="selectBlogTone" class="form-control">
+              <option value="emotional" selected>🌿 감성 일상체 (따뜻하고 감성적인 인플루언서 존댓말)</option>
+              <option value="seo">📊 전문 정보체 (논리적이고 객관적인 정보 전달 & SEO 최적화)</option>
+              <option value="friendly">🤝 친근한 이웃체 (다정하고 편안하게 이웃과 소통하는 어조)</option>
+              <option value="formal">👔 격식 있는 리뷰체 (~합니다 어조의 깔끔하고 진중한 스타일)</option>
+              <option value="humorous">😜 위트 있는 구어체 (재치 있고 유쾌한 밈/이모지 가득 스타일)</option>
+              <option value="casual_informal">📝 내돈내산 일기체 (일기장 쓰듯 솔직하고 가벼운 반말/존댓말 혼용)</option>
+            </select>
+          </div>
+
+          <!-- 3. 카테고리별 AI 생성 엔진 선택 -->
+          <div class="form-group" style="margin-bottom: 0;">
+            <label for="selectCategoryEngine" class="form-label" style="color: #a855f7; font-weight: 600;">🤖 3단계: AI 생성
+              엔진 선택 (카테고리 전용)</label>
+            <select id="selectCategoryEngine" class="form-control">
+              <option value="gemini-3.1-pro-preview" selected>🚀 gemini-3.1-pro-preview (추천: 심층 감성 작문 및 고화질 비전 분석)
+              </option>
+              <option value="gemini-pro-latest">👑 gemini-pro-latest (안정형 최신 Pro 고품질 엔진)</option>
+              <option value="gemini-2.5-flash">⚡ gemini-2.5-flash (초고속 가벼운 스피드 생성 엔진)</option>
+              <option value="gemini-flash-latest">🌟 gemini-flash-latest (안정형 최신 Flash 엔진)</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Generate Button -->
+        <button class="btn-generate" id="btnGenerate">
+          <span class="btn-gen-glow"></span>
+          <span class="btn-gen-text">⚡ 블로그 포스트 생성하기</span>
+        </button>
+
+        <!-- Result Content Viewer -->
+        <div class="output-container" id="outputContainer">
+
+          <!-- State 1: Placeholder/Welcome -->
+          <div class="output-placeholder" id="outputPlaceholder">
+            <div class="ai-brain-icon">🤖</div>
+            <h3>블로그 포스트가 생성되는 곳입니다</h3>
+            <p>좌측에서 이미지와 정보를 입력하고 위의 [블로그 포스트 생성하기] 버튼을 누르시면, AI 비전 분석 및 SEO 가이드라인을 준수하는 포스팅 글을 순식간에 작성해드립니다.</p>
+          </div>
+
+          <!-- State 2: Loading State -->
+          <div class="output-loading hidden" id="outputLoading">
+            <div class="loading-scanner">
+              <div class="scanner-grid"></div>
+              <div class="scanner-line"></div>
+              <div class="scanner-orb"></div>
+            </div>
+            <h4 class="loading-title">AI 멀티모달 이미지 분석 중...</h4>
+            <div class="progress-bar-container">
+              <div class="progress-bar" id="progressBar"></div>
+            </div>
+            <div class="loading-status" id="loadingStatus">Gemini Vision 모델이 이미지를 픽셀 단위로 스캔하고 있습니다.</div>
+          </div>
+
+          <!-- State 3: Content Loaded -->
+          <div class="output-content hidden" id="outputContent">
+            <div class="output-header-bar">
+              <span class="status-indicator">포스트 생성 완료</span>
+              <div class="output-actions">
+                <button class="btn-action hidden" id="btnCopyText">
+                  <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                  </svg>
+                  본문 복사
+                </button>
+                <button class="btn-action hidden" id="btnSendToNaver">
+                  <span class="btn-na-logo">N</span> 네이버로 전송
+                </button>
+                <button class="btn-action hidden" id="btnCopyHtml">
+                  <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                  </svg>
+                  HTML 복사
+                </button>
+              </div>
+            </div>
+
+            <div class="generated-article">
+              <!-- SEO Top 5 Titles & 10 Keywords Box -->
+              <div class="seo-results-card hidden" id="seoResultsCard"
+                style="background: rgba(15, 23, 42, 0.85); border: 1px solid rgba(99, 102, 241, 0.4); border-radius: 12px; padding: 16px; margin-bottom: 24px; box-shadow: 0 4px 20px rgba(0,0,0,0.3);">
+                <div style="margin-bottom: 14px;">
+                  <h4
+                    style="color: #818cf8; font-size: 0.95rem; margin-bottom: 8px; display: flex; align-items: center; gap: 6px;">
+                    🔥 SEO 최적화 추천 제목 Top 5 <span style="font-size: 0.75rem; font-weight: normal; color: #94a3b8;">(클릭하면
+                      메인 제목으로 자동 적용 및 복사됩니다)</span>
+                  </h4>
+                  <div class="seo-title-list" id="seoTitleList"
+                    style="display: flex; flex-direction: column; gap: 6px;"></div>
+                </div>
+                <div style="border-top: 1px solid rgba(255,255,255,0.08); padding-top: 12px;">
+                  <h4
+                    style="color: #38bdf8; font-size: 0.95rem; margin-bottom: 8px; display: flex; align-items: center; gap: 6px;">
+                    🔑 SEO 자동 추출 검색 키워드 10선 <span style="font-size: 0.75rem; font-weight: normal; color: #94a3b8;">(클릭 시
+                      복사)</span>
+                  </h4>
+                  <div class="seo-keyword-grid" id="seoKeywordGrid" style="display: flex; flex-wrap: wrap; gap: 6px;">
+                  </div>
+                </div>
+              </div>
+
+              <div class="article-meta-info" id="articleMetaInfo"></div>
+              <h1 class="article-title" id="articleTitle">글 제목이 입력됩니다.</h1>
+              <div class="article-body" id="articleBody">
+                <!-- AI가 생성한 글 본문 -->
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+    </div>
+  </main>
+
+  <!-- ── MODAL 1: GEMINI SETTINGS ─────────────────────────── -->
+  <div class="modal-overlay" id="settingsModal">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 class="modal-title">Gemini API 설정</h3>
+        <button class="modal-close" id="btnCloseSettings">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p class="settings-description">Google AI Studio에서 발급받은 API 키를 입력해 주세요. 입력하신 키는 서버에 전송되지 않으며 오직 사용자의 브라우저 로컬
+          스토리지에만 보관됩니다.</p>
+
+        <div class="form-group">
+          <label for="settingsApiKey" class="form-label">Gemini API Key</label>
+          <div class="input-password-wrapper">
+            <input type="password" id="settingsApiKey" class="form-control" placeholder="AIzaSy...">
+            <button type="button" class="btn-toggle-pw" id="btnTogglePw">
+              <svg class="icon-svg eye-open" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                <circle cx="12" cy="12" r="3"></circle>
+              </svg>
+            </button>
+          </div>
+          <span class="settings-help">API 키가 없으신가요? <a href="https://aistudio.google.com/" target="_blank"
+              rel="noopener">Google AI Studio (aistudio.google.com)</a>에서 무료로 쉽게 발급받을 수 있습니다.</span>
+        </div>
+
+        <div class="form-group">
+          <label for="settingsModel" class="form-label">AI 모델 선택</label>
+          <select id="settingsModel" class="form-control">
+            <option value="gemini-3.1-pro-preview" selected>gemini-3.1-pro-preview (추천: 최신 3.1 고품질 Pro 작문 & 비전 분석)
+            </option>
+            <option value="gemini-pro-latest">gemini-pro-latest (안정형 최신 Pro 모델)</option>
+            <option value="gemini-2.5-flash">gemini-2.5-flash (빠른 생성 속도 & 가벼운 비용)</option>
+            <option value="gemini-flash-latest">gemini-flash-latest (안정형 최신 Flash 모델)</option>
+          </select>
+        </div>
+
+        <div class="settings-status-box" id="settingsStatusBox">
+          <span class="status-dot status-offline"></span>
+          <span class="status-text">로컬 데모(체험) 모드로 활성화 상태</span>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" id="btnResetSettings">설정 초기화</button>
+        <button class="btn btn-primary" id="btnSaveSettings">설정 저장</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── MODAL 2: VIRTUAL NAVER SMART EDITOR ONE ─────────── -->
+  <div class="modal-overlay" id="naverEditorModal">
+    <div class="naver-editor-card">
+
+      <!-- Naver Editor Header -->
+      <div class="naver-editor-header">
+        <div class="naver-logo-container">
+          <span class="naver-logo">N</span>
+          <span class="naver-title">블로그 글쓰기</span>
+          <span class="naver-status-save">저장 완료 (임시저장 0)</span>
+        </div>
+        <div class="naver-header-actions">
+          <button class="naver-btn-sub" id="btnNaverSave">저장</button>
+          <button class="naver-btn-pub" id="btnNaverPublish">발행</button>
+          <button class="naver-editor-close" id="btnCloseNaverEditor">&times;</button>
+        </div>
+      </div>
+
+      <!-- Naver Editor Sub Toolbar -->
+      <div class="naver-editor-toolbar">
+        <div class="toolbar-group">
+          <span class="toolbar-item font-select">본문 2 ▾</span>
+          <span class="toolbar-item">나눔고딕 ▾</span>
+          <span class="toolbar-separator"></span>
+          <button class="toolbar-btn bold-btn">B</button>
+          <button class="toolbar-btn italic-btn">I</button>
+          <button class="toolbar-btn strike-btn">U</button>
+          <span class="toolbar-separator"></span>
+          <button class="toolbar-btn align-left">≡</button>
+          <button class="toolbar-btn align-center">≓</button>
+        </div>
+        <div class="toolbar-right">
+          <span class="editor-mode-label">스마트에디터 ONE</span>
+        </div>
+      </div>
+
+      <!-- Auto Injector Panel -->
+      <div class="auto-inject-bar">
+        <div class="inject-info">
+          <span class="pulse-dot"></span>
+          <strong>포토블러그 전송 서비스가 대기 중입니다.</strong>
+          <span class="inject-desc">기사 넘기기를 누르면 생성된 글이 자동으로 네이버 본문에 주입됩니다.</span>
+        </div>
+        <button class="btn-inject" id="btnStartInject">
+          <span>📤</span> 기사 넘기기 (Auto-inject)
+        </button>
+      </div>
+
+      <!-- Editor Content Area -->
+      <div class="naver-editor-scrollable">
+        <div class="naver-editor-container">
+
+          <!-- Naver Title Block -->
+          <div class="naver-title-area">
+            <input type="text" id="naverTitleInput" class="naver-title-input" placeholder="제목을 입력하세요" readonly>
+            <div class="naver-title-underline"></div>
+          </div>
+
+          <!-- Naver Body Block -->
+          <div class="naver-body-area" id="naverBodyArea">
+            <p class="naver-placeholder-text" id="naverEditorPlaceholder">기사 넘기기 버튼을 누르면 이 영역에 사진과 글이 자동으로 주입됩니다.</p>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ── MODAL 3: COMPARE TOOLS ─────────────────────────── -->
+  <div class="modal-overlay" id="compareModal">
+    <div class="modal-card modal-large">
+      <div class="modal-header">
+        <h3 class="modal-title">포토블러그 vs 멀티플랫폼 통합엔진 V2</h3>
+        <button class="modal-close" id="btnCloseCompare">&times;</button>
+      </div>
+      <div class="modal-body">
+        <table class="compare-table">
+          <thead>
+            <tr>
+              <th>구분</th>
+              <th>포토블러그 (PhotoBlog)</th>
+              <th>멀티플랫폼 통합엔진 V2</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="td-category">추천 플랫폼</td>
+              <td><strong>네이버 블로그</strong> 전용</td>
+              <td>티스토리, 워드프레스, 구글 블로거, 개인 웹 등</td>
+            </tr>
+            <tr>
+              <td class="td-category">자동 입력 기능</td>
+              <td><strong>네이버 스마트에디터 ONE 자동 주입</strong> 지원 (기사 넘기기)</td>
+              <td><strong>HTML 소스코드 복사</strong> 지원</td>
+            </tr>
+            <tr>
+              <td class="td-category">사진 분석 기술</td>
+              <td class="color-accent">✅ Gemini API 멀티모달 비전 모델 분석</td>
+              <td class="color-accent">✅ Gemini API 멀티모달 비전 모델 분석</td>
+            </tr>
+            <tr>
+              <td class="td-category">글쓰기 모드</td>
+              <td>
+                • <strong>다채로운 말투 필터</strong> (감성, 정보, 친근 등 6종)<br>
+                • 네이버 노출 맞춤형 키워드 배치
+              </td>
+              <td>
+                • <strong>인기 10대 카테고리</strong> 맞춤형 템플릿<br>
+                • 커스텀 HTML 뼈대 빌드
+              </td>
+            </tr>
+            <tr>
+              <td class="td-category">기타 부가 기능</td>
+              <td>인간화 페르소나 필터, FAQ 빌더</td>
+              <td>블로그 맞춤형 HTML 태그 최적화</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-primary" id="btnConfirmCompare">닫기</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── MODAL 4: FAQ & GUIDE ───────────────────────────── -->
+  <div class="modal-overlay" id="faqModal">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 class="modal-title">도움말 및 자주 묻는 질문 (FAQ)</h3>
+        <button class="modal-close" id="btnCloseFaq">&times;</button>
+      </div>
+      <div class="modal-body faq-body">
+
+        <!-- Accordion FAQ 1 -->
+        <div class="faq-item">
+          <button class="faq-question">Q1. photoBlog는 무료 서비스인가요?</button>
+          <div class="faq-answer">
+            <p>네! photoBlog 웹 애플리케이션 자체는 무료로 이용 가능합니다. 본인의 <strong>Gemini API 키</strong>를 입력하여 사용하므로, 사용량에 따른 비용은 Google
+              AI Studio의 약관을 따릅니다. 개인 한도 내에서 무료 티어를 적용받을 경우 사실상 요금이 발생하지 않거나 월 1만 원 내외의 극히 저렴한 금액으로 무제한 포스팅 빌드가 가능합니다.
+            </p>
+          </div>
+        </div>
+
+        <!-- Accordion FAQ 2 -->
+        <div class="faq-item">
+          <button class="faq-question">Q2. Gemini API 키는 어떻게 발급받나요?</button>
+          <div class="faq-answer">
+            <p>다음 절차를 수행하세요:</p>
+            <ol>
+              <li><a href="https://aistudio.google.com/" target="_blank" rel="noopener">Google AI Studio 공식 웹사이트</a>에 구글
+                계정으로 로그인합니다.</li>
+              <li>화면 좌측 상단의 <strong>[Get API key]</strong> 버튼을 누릅니다.</li>
+              <li><strong>[Create API Key]</strong>를 클릭하고 프로젝트를 선택하여 발급된 키(`AIzaSy...`)를 복사합니다.</li>
+            </ol>
+          </div>
+        </div>
+
+        <!-- Accordion FAQ 3 -->
+        <div class="faq-item">
+          <button class="faq-question">Q3. "기사 넘기기" 기능은 실제로 어떻게 작동하나요?</button>
+          <div class="faq-answer">
+            <p>기사 넘기기 기능은 네이버의 글쓰기 편집창인 스마트에디터 ONE의 환경을 시뮬레이션하고, 생성된 텍스트와 이미지를 원클릭으로 주입하도록 돕는 자동화 가상 장치입니다. 실제 브라우저 자동
+              주입과 동일하게 에디터 곳곳에 소스가 채워지는 모습을 시각적으로 검증하고 그대로 옮겨갈 수 있도록 구현되었습니다.</p>
+          </div>
+        </div>
+
+        <!-- Accordion FAQ 4 -->
+        <div class="faq-item">
+          <button class="faq-question">Q4. 사진은 최대 몇 장까지 업로드하는 것이 좋나요?</button>
+          <div class="faq-answer">
+            <p>AI가 글을 풍부하고 실감 나게 묘사할 수 있도록 <strong>3장~8장 정도</strong>의 업로드를 적극 권장합니다. 너무 많은 이미지는 토큰 사용량을 늘리며 비용을 상승시키거나
+              처리 속도를 늦출 수 있으므로 적절하게 핵심 사진을 압축해서 올려주시는 것이 좋습니다.</p>
+          </div>
+        </div>
+
+        <!-- Accordion FAQ 5 -->
+        <div class="faq-item">
+          <button class="faq-question">Q5. 생성된 글을 그대로 발행해도 어뷰징에 안 걸리나요?</button>
+          <div class="faq-answer">
+            <p>네이버의 DIA+나 C-Rank 알고리즘은 글의 독창성과 실제 정보를 면밀히 살핍니다. photoBlog는 기계식 복사글이 아닌 <strong>실제 업로드된 사진 속 고유 요소(색감, 그릇
+                배치, 풍경 디테일)</strong>를 비전 모델이 직접 읽고 서술하므로 검색 품질이 매우 높습니다. 다만, 최종 발행 전에 '본인만의 주관적인 짧은 경험담이나 의견'을 1~2줄
+              추가해주시면 검색 랭킹에 훨씬 더 높은 점수를 획득하실 수 있습니다.</p>
+          </div>
+        </div>
+
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-primary" id="btnConfirmFaq">확인</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── SETTINGS MODAL ──────────────────────────────── -->
+  <div class="modal-overlay" id="settingsModal">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h3 class="modal-title">
+          <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="3"></circle>
+            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+          </svg>
+          Gemini API 설정
+        </h3>
+        <button class="modal-close" id="btnCloseSettings">&times;</button>
+      </div>
+      <div class="modal-body">
+
+        <!-- API Key 상태 표시 -->
+        <div class="settings-status-box" id="settingsStatusBox">
+          <span class="status-dot"></span>
+          <span class="status-text">API 키 미설정</span>
+        </div>
+
+        <!-- API Key 입력 -->
+        <div class="form-group">
+          <label class="form-label" for="settingsApiKey">Gemini API Key</label>
+          <div class="input-with-toggle">
+            <input
+              type="password"
+              class="form-input"
+              id="settingsApiKey"
+              placeholder="AIzaSy..."
+              autocomplete="off"
+            />
+            <button class="btn-icon-toggle" id="btnTogglePw" title="키 표시/숨기기">
+              👁
+            </button>
+          </div>
+          <p class="form-hint">
+            <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener">Google AI Studio</a>에서 무료로 발급받을 수 있습니다.
+          </p>
+        </div>
+
+        <!-- 모델 선택 -->
+        <div class="form-group">
+          <label class="form-label" for="settingsModel">Gemini 모델 선택</label>
+          <select class="form-input form-select" id="settingsModel">
+            <option value="gemini-2.5-flash">gemini-2.5-flash (권장 · 빠름)</option>
+            <option value="gemini-2.5-pro">gemini-2.5-pro (고품질 · 느림)</option>
+            <option value="gemini-2.0-flash">gemini-2.0-flash</option>
+            <option value="gemini-1.5-pro">gemini-1.5-pro</option>
+          </select>
+        </div>
+
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-ghost" id="btnResetSettings">초기화</button>
+        <button class="btn btn-primary" id="btnSaveSettings">저장</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification -->
+  <div class="toast" id="toast">알림 메시지</div>
+
+  <!-- App Script -->
+  <script src="app.js"></script>
+
+</body>
+
+</html>
