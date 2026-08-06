@@ -81,6 +81,12 @@
           </div>
         </div>
 
+        <!-- API Key Input -->
+        <div class="form-group" style="background: rgba(16, 185, 129, 0.05); padding: 12px; border-radius: 10px; border: 1px dashed rgba(16, 185, 129, 0.3);">
+          <label for="mainApiKey" class="form-label" style="color: #10b981; margin-bottom: 6px;">🔑 Gemini API Key</label>
+          <input type="password" id="mainApiKey" class="form-control" placeholder="AIzaSy... (여기에 API 키를 입력하세요)">
+        </div>
+
         <!-- Meta Information Inputs -->
         <div class="form-group-row">
           <div class="form-group">
@@ -90,6 +96,12 @@
           </div>
           <div class="form-group">
             <label for="inputDate" class="form-label">방문/경험 날짜 (선택: 무관 시 생략)</label>
+            <div style="display: flex; gap: 4px; margin-bottom: 6px;">
+              <button type="button" class="btn-micro" onclick="setQuickDate(0)" style="padding: 4px 8px; border: 1px solid rgba(255,255,255,0.1); border-radius: 4px; background: rgba(255,255,255,0.05); color: #cbd5e1; cursor: pointer;">오늘</button>
+              <button type="button" class="btn-micro" onclick="setQuickDate(-1)" style="padding: 4px 8px; border: 1px solid rgba(255,255,255,0.1); border-radius: 4px; background: rgba(255,255,255,0.05); color: #cbd5e1; cursor: pointer;">어제</button>
+              <button type="button" class="btn-micro" onclick="setQuickDate(-7)" style="padding: 4px 8px; border: 1px solid rgba(255,255,255,0.1); border-radius: 4px; background: rgba(255,255,255,0.05); color: #cbd5e1; cursor: pointer;">1주 전</button>
+              <button type="button" class="btn-micro" onclick="setQuickDate('')" style="margin-left: auto; padding: 4px 8px; border: 1px solid rgba(255,255,255,0.1); border-radius: 4px; background: rgba(255,255,255,0.05); color: #cbd5e1; cursor: pointer;">지우기</button>
+            </div>
             <input type="date" id="inputDate" class="form-control">
           </div>
         </div>
