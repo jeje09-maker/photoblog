@@ -341,6 +341,10 @@ document.addEventListener('DOMContentLoaded', () => {
     handleFiles(files);
   });
 
+  uploadZone.addEventListener('click', () => {
+    fileInput.click();
+  });
+
   fileInput.addEventListener('change', (e) => {
     handleFiles(e.target.files);
     e.target.value = '';
@@ -423,6 +427,7 @@ document.addEventListener('DOMContentLoaded', () => {
       uploadedFiles.forEach((file, index) => {
         const item = document.createElement('div');
         item.className = 'preview-item';
+        item.draggable = true;
         const sizeInfo = file.isLoading 
           ? '변환 중...' 
           : (file.originalSize ? `${formatFileSize(file.webpSize)}` : '');
@@ -434,6 +439,42 @@ document.addEventListener('DOMContentLoaded', () => {
             ${sizeInfo ? `<span class="size-badge">${sizeInfo}</span>` : ''}
           </div>
         `;
+
+        // Drag and drop events for reordering
+        item.addEventListener('dragstart', (e) => {
+          e.dataTransfer.setData('text/plain', index);
+          e.dataTransfer.effectAllowed = 'move';
+          setTimeout(() => item.classList.add('dragging'), 0);
+        });
+
+        item.addEventListener('dragend', () => {
+          item.classList.remove('dragging');
+          previewGrid.querySelectorAll('.preview-item').forEach(el => el.classList.remove('drag-over'));
+        });
+
+        item.addEventListener('dragover', (e) => {
+          e.preventDefault();
+          e.dataTransfer.dropEffect = 'move';
+          item.classList.add('drag-over');
+        });
+
+        item.addEventListener('dragleave', () => {
+          item.classList.remove('drag-over');
+        });
+
+        item.addEventListener('drop', (e) => {
+          e.preventDefault();
+          item.classList.remove('drag-over');
+          const draggedIndex = parseInt(e.dataTransfer.getData('text/plain'), 10);
+          if (draggedIndex === index || isNaN(draggedIndex)) return;
+
+          // Reorder the array
+          const draggedItem = uploadedFiles.splice(draggedIndex, 1)[0];
+          uploadedFiles.splice(index, 0, draggedItem);
+          
+          renderPreviews();
+        });
+
         previewGrid.appendChild(item);
       });
       

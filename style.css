@@ -396,6 +396,22 @@ body:hover .cursor-glow {
   border-radius: 6px;
   overflow: hidden;
   border: 1px solid rgba(255, 255, 255, 0.08);
+  cursor: grab;
+  transition: transform 0.2s, opacity 0.2s, border 0.2s;
+}
+
+.preview-item:active {
+  cursor: grabbing;
+}
+
+.preview-item.dragging {
+  opacity: 0.5;
+  transform: scale(0.95);
+}
+
+.preview-item.drag-over {
+  border: 2px dashed var(--accent-primary);
+  box-shadow: 0 0 10px rgba(78, 201, 176, 0.5);
 }
 
 .preview-item img {
