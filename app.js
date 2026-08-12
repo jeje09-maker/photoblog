@@ -1,4 +1,4 @@
-﻿/* ?? app.js ??photoBlog Core Controller (Gemini API & WebP Converter) ?? */
+/* ?? app.js ??photoBlog Core Controller (Gemini API & WebP Converter) ?? */
 
 'use strict';
 
@@ -343,6 +343,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   fileInput.addEventListener('change', (e) => {
     handleFiles(e.target.files);
+    e.target.value = '';
   });
 
   async function handleFiles(files) {
@@ -350,30 +351,44 @@ document.addEventListener('DOMContentLoaded', () => {
     activeDemoPreset = null; // Clear preset state on manual upload
 
     const fileArray = Array.from(files);
-    const totalCount = fileArray.length;
+    const validFiles = fileArray.filter(f => f.type.startsWith('image/')).slice(0, 10 - uploadedFiles.length);
+    const totalCount = validFiles.length;
+    
+    if (totalCount === 0) {
+      if (fileArray.length > 0) showToast('사진은 최대 10장까지만 업로드 할 수 있거나 지원되지 않는 파일입니다.');
+      return;
+    }
+
     let processedCount = 0;
+    showToast(`${totalCount}장의 이미지를 WebP로 변환 중...`);
 
-    showToast(`${totalCount}?μ쓽 ?대?吏瑜?WebP濡?蹂??以?..`);
+    // 1. 임시 미리보기 즉시 추가
+    const startIndex = uploadedFiles.length;
+    for (const file of validFiles) {
+      uploadedFiles.push({
+        name: file.name,
+        originalSize: file.size,
+        webpSize: file.size, // 임시 표시
+        previewUrl: URL.createObjectURL(file),
+        isLoading: true
+      });
+    }
+    renderPreviews();
 
-    for (const file of fileArray) {
-      if (!file.type.startsWith('image/')) {
-        showToast('?대?吏 ?뚯씪留??낅줈??媛?ν빀?덈떎.');
-        continue;
-      }
-      if (uploadedFiles.length >= 10) {
-        showToast('?ъ쭊? 理쒕? 10?κ퉴吏留??낅줈?쒗븷 ???덉뒿?덈떎.');
-        break;
-      }
-
+    // 2. 비동기 WebP 변환
+    for (let i = 0; i < validFiles.length; i++) {
+      const file = validFiles[i];
       try {
         const webpFile = await convertToWebp(file);
-        uploadedFiles.push(webpFile);
+        uploadedFiles[startIndex + i] = webpFile;
         processedCount++;
         renderPreviews();
-        showToast(`(${processedCount}/${totalCount}) '${webpFile.name}' 蹂???꾨즺! (${formatFileSize(webpFile.originalSize)} ??${formatFileSize(webpFile.webpSize)}, -${webpFile.compressionRate}%)`);
+        showToast(`(${processedCount}/${totalCount}) '${webpFile.name}' 변환 완료! (${formatFileSize(webpFile.originalSize)} -> ${formatFileSize(webpFile.webpSize)}, -${webpFile.compressionRate}%)`);
       } catch (err) {
         console.error(err);
-        showToast(`'${file.name}' 蹂??以??ㅻ쪟媛 諛쒖깮?덉뒿?덈떎.`);
+        showToast(`'${file.name}' 변환 중 오류가 발생했습니다.`);
+        uploadedFiles.splice(startIndex + i, 1);
+        renderPreviews();
       }
     }
   }
@@ -408,9 +423,9 @@ document.addEventListener('DOMContentLoaded', () => {
       uploadedFiles.forEach((file, index) => {
         const item = document.createElement('div');
         item.className = 'preview-item';
-        const sizeInfo = file.originalSize
-          ? `${formatFileSize(file.webpSize)}`
-          : '';
+        const sizeInfo = file.isLoading 
+          ? '변환 중...' 
+          : (file.originalSize ? `${formatFileSize(file.webpSize)}` : '');
         item.innerHTML = `
           <img src="${file.previewUrl}" alt="${file.name}">
           <button class="preview-remove" data-index="${index}">&times;</button>
