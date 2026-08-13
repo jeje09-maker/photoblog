@@ -62,7 +62,7 @@ document.addEventListener('DOMContentLoaded', () => {
   
   // Modals
   const settingsModal = document.getElementById('settingsModal');
-  const btnOpenSettings = document.getElementById('btnOpenSettings');
+  const btnOpenSettings = document.getElementById('btnOpenSettings') || document.createElement('button');
   const btnCloseSettings = document.getElementById('btnCloseSettings');
   const btnSaveSettings = document.getElementById('btnSaveSettings');
   const btnResetSettings = document.getElementById('btnResetSettings');
@@ -81,12 +81,12 @@ document.addEventListener('DOMContentLoaded', () => {
   const btnNaverSave = document.getElementById('btnNaverSave');
   
   const compareModal = document.getElementById('compareModal');
-  const btnShowCompare = document.getElementById('btnShowCompare');
+  const btnShowCompare = document.getElementById('btnShowCompare') || document.createElement('button');
   const btnCloseCompare = document.getElementById('btnCloseCompare');
   const btnConfirmCompare = document.getElementById('btnConfirmCompare');
   
   const faqModal = document.getElementById('faqModal');
-  const btnShowFaq = document.getElementById('btnShowFaq');
+  const btnShowFaq = document.getElementById('btnShowFaq') || document.createElement('button');
   const btnCloseFaq = document.getElementById('btnCloseFaq');
   const btnConfirmFaq = document.getElementById('btnConfirmFaq');
   
