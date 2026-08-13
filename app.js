@@ -351,51 +351,61 @@ document.addEventListener('DOMContentLoaded', () => {
     e.target.value = '';
   });
 
-  async function handleFiles(files) {
+  function handleFiles(files) {
     if (files.length === 0) return;
     activeDemoPreset = null; // Clear preset state on manual upload
 
     const fileArray = Array.from(files);
-    const validFiles = fileArray.filter(f => f.type.startsWith('image/'));
-    const totalCount = validFiles.length;
+    const validFiles = [];
+    const invalidFiles = [];
     
-    if (totalCount === 0) {
-      if (fileArray.length > 0) showToast('지원되지 않는 파일이 포함되어 있습니다.');
-      return;
+    fileArray.forEach(f => {
+      if (f.type.startsWith('image/')) {
+        validFiles.push(f);
+      } else {
+        invalidFiles.push(f);
+      }
+    });
+
+    if (invalidFiles.length > 0) {
+      showToast(`지원되지 않는 파일(동영상, 문서 등) ${invalidFiles.length}개는 제외되었습니다.`, 5000);
     }
+
+    const totalCount = validFiles.length;
+    if (totalCount === 0) return;
 
     let processedCount = 0;
     showToast(`${totalCount}장의 이미지를 WebP로 변환 중...`);
 
-    // 1. 임시 미리보기 즉시 추가
-    const startIndex = uploadedFiles.length;
-    for (const file of validFiles) {
-      uploadedFiles.push({
+    validFiles.forEach(file => {
+      const placeholder = {
         name: file.name,
         originalSize: file.size,
         webpSize: file.size, // 임시 표시
         previewUrl: URL.createObjectURL(file),
         isLoading: true
-      });
-    }
-    renderPreviews();
+      };
+      uploadedFiles.push(placeholder);
 
-    // 2. 비동기 WebP 변환
-    for (let i = 0; i < validFiles.length; i++) {
-      const file = validFiles[i];
-      try {
-        const webpFile = await convertToWebp(file);
-        uploadedFiles[startIndex + i] = webpFile;
+      // 비동기 WebP 변환
+      convertToWebp(file).then(webpFile => {
+        Object.assign(placeholder, webpFile);
+        placeholder.isLoading = false;
         processedCount++;
         renderPreviews();
-        showToast(`(${processedCount}/${totalCount}) '${webpFile.name}' 변환 완료! (${formatFileSize(webpFile.originalSize)} -> ${formatFileSize(webpFile.webpSize)}, -${webpFile.compressionRate}%)`);
-      } catch (err) {
+        if (processedCount === totalCount) {
+          showToast(`모든 이미지(${totalCount}장) 변환 완료!`);
+        }
+      }).catch(err => {
         console.error(err);
-        showToast(`'${file.name}' 변환 중 오류가 발생했습니다.`);
-        uploadedFiles.splice(startIndex + i, 1);
+        showToast(`'${file.name}' 변환 중 오류가 발생했습니다.`, 5000);
+        const idx = uploadedFiles.indexOf(placeholder);
+        if (idx !== -1) uploadedFiles.splice(idx, 1);
         renderPreviews();
-      }
-    }
+      });
+    });
+
+    renderPreviews();
   }
 
   function renderPreviews() {
