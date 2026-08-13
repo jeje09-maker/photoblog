@@ -780,6 +780,12 @@ document.addEventListener('DOMContentLoaded', () => {
     outputContent.classList.add('hidden');
     outputLoading.classList.remove('hidden');
     btnGenerate.disabled = true;
+    
+    const btnGenText = btnGenerate.querySelector('.btn-gen-text');
+    const originalBtnText = btnGenText ? btnGenText.innerHTML : '✨ 블로그 포스트 생성하기';
+    if (btnGenText) {
+      btnGenText.innerHTML = '⏳ 실행 중...';
+    }
 
     let progress = 0;
     progressBar.style.width = '0%';
@@ -822,6 +828,7 @@ document.addEventListener('DOMContentLoaded', () => {
         outputLoading.classList.add('hidden');
         renderGeneratedOutput();
         btnGenerate.disabled = false;
+        if (btnGenText) btnGenText.innerHTML = originalBtnText;
         showToast('釉붾줈洹??ъ뒪?멸? ?깃났?곸쑝濡??앹꽦?섏뿀?듬땲??');
       }, 500);
 
@@ -831,7 +838,8 @@ document.addEventListener('DOMContentLoaded', () => {
       outputLoading.classList.add('hidden');
       outputPlaceholder.classList.remove('hidden');
       btnGenerate.disabled = false;
-      showToast(`湲 ?앹꽦 ?먮윭: ${error.message}`, 6000);
+      if (btnGenText) btnGenText.innerHTML = originalBtnText;
+      showToast(`글 생성 에러: ${error.message}`, 6000);
     }
   });
 
