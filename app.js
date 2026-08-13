@@ -356,11 +356,11 @@ document.addEventListener('DOMContentLoaded', () => {
     activeDemoPreset = null; // Clear preset state on manual upload
 
     const fileArray = Array.from(files);
-    const validFiles = fileArray.filter(f => f.type.startsWith('image/')).slice(0, 10 - uploadedFiles.length);
+    const validFiles = fileArray.filter(f => f.type.startsWith('image/'));
     const totalCount = validFiles.length;
     
     if (totalCount === 0) {
-      if (fileArray.length > 0) showToast('사진은 최대 10장까지만 업로드 할 수 있거나 지원되지 않는 파일입니다.');
+      if (fileArray.length > 0) showToast('지원되지 않는 파일이 포함되어 있습니다.');
       return;
     }
 
