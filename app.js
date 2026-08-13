@@ -7,11 +7,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // ==========================================
   // 1. ?곹깭 諛??꾩뿭 蹂??珥덇린??  // ==========================================
   let apiKey = localStorage.getItem('photoblog_api_key') || '';
-  let selectedModel = localStorage.getItem('photoblog_model') || 'gemini-3.1-pro-preview';
-  if (selectedModel.includes('1.5') || selectedModel === 'gemini-2.5-pro' || selectedModel === 'gemini-2.0-flash' || selectedModel === 'gemini-3-pro-preview') {
-    selectedModel = 'gemini-3.1-pro-preview';
-    localStorage.setItem('photoblog_model', 'gemini-3.1-pro-preview');
-  }
+  let selectedModel = localStorage.getItem('photoblog_model') || 'gemini-1.5-pro';
   let uploadedFiles = []; // Array of { name, type, base64, previewUrl }
   
   let currentCategory = 'restaurant'; // 'restaurant' | 'cafe' | 'travel' | 'tech' | ...
@@ -98,6 +94,8 @@ document.addEventListener('DOMContentLoaded', () => {
   const inputKeywords = document.getElementById('inputKeywords') || document.createElement('input');
   const keywordTags = document.getElementById('keywordTags') || document.createElement('div');
   const btnExtractKeywords = document.getElementById('btnExtractKeywords') || document.createElement('button');
+  const chkHumanize = document.getElementById('chkHumanize') || { checked: false };
+  const chkFaq = document.getElementById('chkFaq') || { checked: false };
 
   // Set default date to today
   const today = new Date().toISOString().substring(0, 10);
@@ -166,9 +164,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
   btnResetSettings.addEventListener('click', () => {
     settingsApiKey.value = '';
-    settingsModel.value = 'gemini-3.1-pro-preview';
+    settingsModel.value = 'gemini-1.5-pro';
     apiKey = '';
-    selectedModel = 'gemini-3.1-pro-preview';
+    selectedModel = 'gemini-1.5-pro';
     localStorage.removeItem('photoblog_api_key');
     localStorage.removeItem('photoblog_model');
     updateSettingsStatus();
@@ -707,7 +705,7 @@ document.addEventListener('DOMContentLoaded', () => {
       if (categoryEngineMap[currentCategory]) {
         selectCategoryEngine.value = categoryEngineMap[currentCategory];
       } else {
-        selectCategoryEngine.value = selectedModel || 'gemini-3.1-pro-preview';
+        selectCategoryEngine.value = selectedModel || 'gemini-1.5-pro';
       }
       showToast(`[${tab.textContent.trim()}] 移댄뀒怨좊━ 諛?留욎땄 AI ?붿쭊???좏깮?섏뿀?듬땲??`);
     });
@@ -995,7 +993,7 @@ document.addEventListener('DOMContentLoaded', () => {
       ]
     };
 
-    const targetModel = (selectCategoryEngine && selectCategoryEngine.value) || selectedModel || 'gemini-3.1-pro-preview';
+    const targetModel = (selectCategoryEngine && selectCategoryEngine.value) || selectedModel || 'gemini-1.5-pro';
     const url = `https://generativelanguage.googleapis.com/v1beta/models/${targetModel}:generateContent?key=${apiKey}`;
     const response = await fetch(url, {
       method: 'POST',
