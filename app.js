@@ -417,12 +417,12 @@ document.addEventListener('DOMContentLoaded', () => {
       }
       if (totalOriginal > 0) {
         summaryEl.innerHTML = `
-          <span class="summary-count">${uploadedFiles.length}???낅줈??/span>
-          <span class="summary-size">${formatFileSize(totalOriginal)} ??${formatFileSize(totalWebp)}</span>
-          <span class="summary-rate">-${totalRate}% ?덇컧</span>
+          <span class="summary-count">${uploadedFiles.length}장 업로드</span>
+          <span class="summary-size">${formatFileSize(totalOriginal)} → ${formatFileSize(totalWebp)}</span>
+          <span class="summary-rate">-${totalRate}% 절감</span>
         `;
       } else {
-        summaryEl.innerHTML = `<span class="summary-count">${uploadedFiles.length}???낅줈??/span>`;
+        summaryEl.innerHTML = `<span class="summary-count">${uploadedFiles.length}장 업로드</span>`;
       }
 
       uploadedFiles.forEach((file, index) => {
@@ -470,8 +470,12 @@ document.addEventListener('DOMContentLoaded', () => {
           if (draggedIndex === index || isNaN(draggedIndex)) return;
 
           // Reorder the array
+          let dropIndex = index;
+          if (draggedIndex < dropIndex) {
+            dropIndex--;
+          }
           const draggedItem = uploadedFiles.splice(draggedIndex, 1)[0];
-          uploadedFiles.splice(index, 0, draggedItem);
+          uploadedFiles.splice(dropIndex, 0, draggedItem);
           
           renderPreviews();
         });
@@ -772,13 +776,13 @@ document.addEventListener('DOMContentLoaded', () => {
       progressBar.style.width = `${Math.min(progress, 95)}%`;
       
       if (progress < 30) {
-        loadingStatus.textContent = 'Gemini Vision 硫?곕え??紐⑤뜽???ъ쭊 WebP ?곗씠?곕? 遺꾩꽍 以묒엯?덈떎...';
+        loadingStatus.textContent = 'Gemini Vision 멀티모달 모델이 사진 WebP 데이터를 분석 중입니다...';
       } else if (progress < 60) {
-        loadingStatus.textContent = '?ъ쭊 ??留ㅼ옣 ?덉씠?꾩썐, 議곕챸, ?됱긽 ?붿냼瑜?異붿텧?섍퀬 ?덉뒿?덈떎...';
+        loadingStatus.textContent = '사진 내 매장 레이아웃, 조명, 색상 요소를 추출하고 있습니다...';
       } else if (progress < 85) {
-        loadingStatus.textContent = '?좏깮??釉붾줈洹?理쒖쟻???쒗뵆由욧낵 ?꾨＼?꾪듃瑜??듯빀?섏뿬 ?먭퀬瑜??ㅺ퀎?섍퀬 ?덉뒿?덈떎...';
+        loadingStatus.textContent = '선택한 블로그 최적화 템플릿과 프롬프트를 통합하여 원고를 설계하고 있습니다...';
       } else {
-        loadingStatus.textContent = 'SEO 理쒖쟻??寃利?諛?臾몄껜 ?ㅻ벉湲??묒뾽??留덈Т由ы븯??以묒엯?덈떎...';
+        loadingStatus.textContent = 'SEO 최적화 검증 및 문체 다듬기 작업을 마무리하는 중입니다...';
       }
     }, 350);
 
@@ -800,7 +804,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
       clearInterval(progressInterval);
       progressBar.style.width = '100%';
-      loadingStatus.textContent = '?앹꽦 ?꾨즺!';
+      loadingStatus.textContent = '생성 완료!';
 
       setTimeout(() => {
         outputLoading.classList.add('hidden');
@@ -1385,7 +1389,7 @@ ${chkFaq.checked ? `<h3>* ${subject} ?쇨린 FAQ</h3>
     
     articleMetaInfo.innerHTML = `
       <span style="margin-right: 14px; color: #94a3b8; font-weight: 500;">${formattedDate}</span>
-      <span style="color: #38bdf8; font-weight: 500;">?뤇截?${tagsHtml}</span>
+      <span style="color: #38bdf8; font-weight: 500;">${tagsHtml}</span>
     `;
 
     articleTitle.textContent = generatedTitle;
@@ -1415,14 +1419,14 @@ ${chkFaq.checked ? `<h3>* ${subject} ?쇨린 FAQ</h3>
           const btn = document.createElement('button');
           btn.type = 'button';
           btn.style.cssText = 'text-align: left; padding: 10px 14px; background: rgba(30, 41, 59, 0.8); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; color: #f8fafc; font-size: 0.9rem; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: space-between;';
-          btn.innerHTML = `<span><strong style="color:#818cf8; margin-right:8px;">Top ${idx+1}.</strong> ${tItem}</span> <span style="font-size:0.75rem; color:#64748b; background:rgba(255,255,255,0.05); padding:2px 6px; border-radius:4px;">?곸슜 & 蹂듭궗</span>`;
+          btn.innerHTML = `<span><strong style="color:#818cf8; margin-right:8px;">Top ${idx+1}.</strong> ${tItem}</span> <span style="font-size:0.75rem; color:#64748b; background:rgba(255,255,255,0.05); padding:2px 6px; border-radius:4px;">적용 & 복사</span>`;
           btn.addEventListener('mouseover', () => btn.style.background = 'rgba(99, 102, 241, 0.25)');
           btn.addEventListener('mouseout', () => btn.style.background = 'rgba(30, 41, 59, 0.8)');
           btn.addEventListener('click', () => {
             articleTitle.textContent = tItem;
             generatedTitle = tItem;
             navigator.clipboard.writeText(tItem);
-            showToast(`?쒕ぉ??"${tItem}"(??濡?蹂寃?諛??대┰蹂대뱶??蹂듭궗?섏뿀?듬땲??`);
+            showToast(`제목이 "${tItem}"(으)로 변경 및 복사되었습니다.`);
           });
           seoTitleList.appendChild(btn);
         });
@@ -1439,7 +1443,7 @@ ${chkFaq.checked ? `<h3>* ${subject} ?쇨린 FAQ</h3>
           badge.addEventListener('mouseout', () => badge.style.background = 'rgba(56, 189, 248, 0.15)');
           badge.addEventListener('click', () => {
             navigator.clipboard.writeText(`#${cleanKw}`);
-            showToast(`?ㅼ썙??#${cleanKw} 媛 ?대┰蹂대뱶??蹂듭궗?섏뿀?듬땲??`);
+            showToast(`키워드 #${cleanKw} 가 복사되었습니다.`);
           });
           seoKeywordGrid.appendChild(badge);
         });
@@ -1487,7 +1491,7 @@ ${chkFaq.checked ? `<h3>* ${subject} ?쇨린 FAQ</h3>
       imgContainer.className = 'article-inline-photo';
       imgContainer.innerHTML = `
         <img src="${file.previewUrl}" alt="${file.name}" loading="lazy">
-        <span class="article-photo-caption">?벜 ${file.name} <span class="article-photo-badge">WebP</span></span>
+        <span class="article-photo-caption">📷 ${file.name} <span class="article-photo-badge">WebP</span></span>
       `;
 
       const targetBlock = blocks[blockIdx];
@@ -1587,7 +1591,7 @@ ${chkFaq.checked ? `<h3>* ${subject} ?쇨린 FAQ</h3>
             imgBox.className = 'naver-img-box';
             imgBox.innerHTML = `
               <img src="${file.previewUrl}" alt="${file.name}">
-              <span class="naver-img-caption">?벜 ${file.name} [WebP ${file.webpSize ? formatFileSize(file.webpSize) : ''}]</span>
+              <span class="naver-img-caption">📷 ${file.name} [WebP ${file.webpSize ? formatFileSize(file.webpSize) : ''}]</span>
             `;
             naverBodyArea.appendChild(imgBox);
             naverBodyArea.scrollIntoView({ behavior: 'smooth', block: 'end' });
