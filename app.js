@@ -7,7 +7,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // ==========================================
   // 1. ?곹깭 諛??꾩뿭 蹂??珥덇린??  // ==========================================
   let apiKey = localStorage.getItem('photoblog_api_key') || '';
-  let selectedModel = localStorage.getItem('photoblog_model') || 'gemini-1.5-pro';
+  let selectedModel = localStorage.getItem('photoblog_model') || 'gemini-2.5-pro';
   let uploadedFiles = []; // Array of { name, type, base64, previewUrl }
   
   let currentCategory = 'restaurant'; // 'restaurant' | 'cafe' | 'travel' | 'tech' | ...
@@ -164,9 +164,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
   btnResetSettings.addEventListener('click', () => {
     settingsApiKey.value = '';
-    settingsModel.value = 'gemini-1.5-pro';
+    settingsModel.value = 'gemini-2.5-pro';
     apiKey = '';
-    selectedModel = 'gemini-1.5-pro';
+    selectedModel = 'gemini-2.5-pro';
     localStorage.removeItem('photoblog_api_key');
     localStorage.removeItem('photoblog_model');
     updateSettingsStatus();
@@ -705,7 +705,7 @@ document.addEventListener('DOMContentLoaded', () => {
       if (categoryEngineMap[currentCategory]) {
         selectCategoryEngine.value = categoryEngineMap[currentCategory];
       } else {
-        selectCategoryEngine.value = selectedModel || 'gemini-1.5-pro';
+        selectCategoryEngine.value = selectedModel || 'gemini-2.5-pro';
       }
       showToast(`[${tab.textContent.trim()}] 移댄뀒怨좊━ 諛?留욎땄 AI ?붿쭊???좏깮?섏뿀?듬땲??`);
     });
@@ -1001,7 +1001,7 @@ document.addEventListener('DOMContentLoaded', () => {
       ]
     };
 
-    const targetModel = (selectCategoryEngine && selectCategoryEngine.value) || selectedModel || 'gemini-1.5-pro';
+    const targetModel = (selectCategoryEngine && selectCategoryEngine.value) || selectedModel || 'gemini-2.5-pro';
     const url = `https://generativelanguage.googleapis.com/v1beta/models/${targetModel}:generateContent?key=${apiKey}`;
     const response = await fetch(url, {
       method: 'POST',
