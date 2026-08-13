@@ -1414,10 +1414,36 @@ ${chkFaq.checked ? `<h3>* ${subject} ?쇨린 FAQ</h3>
 
     articleTitle.textContent = generatedTitle;
     
-    if (generatedBody.includes('<h2') || generatedBody.includes('<p>') || generatedBody.includes('<ul')) {
-      articleBody.innerHTML = generatedBody;
+    let finalBody = generatedBody;
+    
+    // Replace dummy AI tags like [IMAGE_1] or <img src="..."> with actual uploaded files
+    if (uploadedFiles && uploadedFiles.length > 0) {
+      // 1. Handle [IMAGE_x] format
+      finalBody = finalBody.replace(/\[IMAGE_(\d+)\]/gi, (match, p1) => {
+        const idx = parseInt(p1, 10) - 1;
+        if (idx >= 0 && idx < uploadedFiles.length) {
+          const file = uploadedFiles[idx];
+          return `<figure class="article-image" style="margin: 32px 0; text-align: center;"><img src="${file.previewUrl}" alt="첨부 이미지 ${p1}" style="max-width: 100%; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);"><figcaption style="margin-top: 8px; font-size: 0.9rem; color: #64748b;">${file.name.replace('.webp', '')}</figcaption></figure>`;
+        }
+        return match;
+      });
+      
+      // 2. Handle legacy <img src="assets..."> format that AI might stubbornly output
+      let imgTagCounter = 0;
+      finalBody = finalBody.replace(/<img[^>]*>/gi, (match) => {
+        if (imgTagCounter < uploadedFiles.length) {
+          const file = uploadedFiles[imgTagCounter];
+          imgTagCounter++;
+          return `<figure class="article-image" style="margin: 32px 0; text-align: center;"><img src="${file.previewUrl}" alt="첨부 이미지 ${imgTagCounter}" style="max-width: 100%; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);"><figcaption style="margin-top: 8px; font-size: 0.9rem; color: #64748b;">${file.name.replace('.webp', '')}</figcaption></figure>`;
+        }
+        return '';
+      });
+    }
+
+    if (finalBody.includes('<h2') || finalBody.includes('<p>') || finalBody.includes('<ul')) {
+      articleBody.innerHTML = finalBody;
     } else {
-      const formattedParagraphs = generatedBody
+      const formattedParagraphs = finalBody
         .split('\n\n')
         .map(para => `<p style="margin-bottom: 14px; line-height: 1.8;">${para.replace(/\n/g, '<br>')}</p>`)
         .join('');
