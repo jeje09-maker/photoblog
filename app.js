@@ -266,7 +266,8 @@ document.addEventListener('DOMContentLoaded', () => {
   // Client-side WebP conversion utilizing HTML5 Canvas
   function convertToWebp(file) {
     return new Promise((resolve, reject) => {
-      const originalSize = file.size; // ?먮낯 ?뚯씪 諛붿씠???ш린 ???      const reader = new FileReader();
+      const originalSize = file.size;
+      const reader = new FileReader();
       reader.onload = (e) => {
         const img = new Image();
         img.onload = () => {
