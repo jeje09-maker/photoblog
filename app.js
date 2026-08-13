@@ -95,6 +95,9 @@ document.addEventListener('DOMContentLoaded', () => {
   const btnConfirmFaq = document.getElementById('btnConfirmFaq');
   
   const toast = document.getElementById('toast');
+  const inputKeywords = document.getElementById('inputKeywords') || document.createElement('input');
+  const keywordTags = document.getElementById('keywordTags') || document.createElement('div');
+  const btnExtractKeywords = document.getElementById('btnExtractKeywords') || document.createElement('button');
 
   // Set default date to today
   const today = new Date().toISOString().substring(0, 10);
